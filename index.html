@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>For You</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at center, #2b0005 0%, #050000 100%);
+      overflow: hidden;
+      font-family: 'Arial', sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+      /* CRITICAL: Prevents phone from trying to scroll or pull-to-refresh when she drags her finger */
+      touch-action: none; 
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* --- INTRO SCREEN --- */
+    #intro-screen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #0a0000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 999;
+      transition: opacity 1s ease-out;
+    }
+
+    #open-btn {
+      padding: 15px 40px;
+      font-size: 24px;
+      color: #ffffff;
+      background-color: transparent;
+      border: 2px solid #ff3344;
+      border-radius: 30px;
+      cursor: pointer;
+      box-shadow: 0 0 15px rgba(255, 51, 68, 0.5), inset 0 0 15px rgba(255, 51, 68, 0.5);
+      font-family: 'Arial', sans-serif;
+      font-weight: bold;
+      text-shadow: 0 0 8px rgba(255, 51, 68, 0.8);
+      transition: all 0.3s ease;
+      animation: gentle-pulse 2s infinite;
+    }
+
+    #open-btn:active {
+      transform: scale(0.95);
+      background-color: rgba(255, 51, 68, 0.2);
+    }
+
+    @keyframes gentle-pulse {
+      0%, 100% { box-shadow: 0 0 15px rgba(255, 51, 68, 0.5), inset 0 0 15px rgba(255, 51, 68, 0.5); }
+      50% { box-shadow: 0 0 25px rgba(255, 51, 68, 0.8), inset 0 0 20px rgba(255, 51, 68, 0.6); }
+    }
+
+    /* --- BACKGROUND GLITTER --- */
+    #background-effects {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 1;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .glitter {
+      position: absolute;
+      border-radius: 50%;
+      background: radial-gradient(circle, #ffcbd1 0%, transparent 70%);
+      animation: floatUp linear infinite;
+      opacity: 0;
+    }
+
+    @keyframes floatUp {
+      0% { transform: translateY(110vh) scale(0.5); opacity: 0; }
+      20% { opacity: 0.6; }
+      80% { opacity: 0.6; }
+      100% { transform: translateY(-10vh) scale(1.2); opacity: 0; }
+    }
+
+    .twinkle {
+      position: absolute;
+      border-radius: 50%;
+      background: radial-gradient(circle, #ffffff 0%, #ff8c94 40%, transparent 80%);
+      opacity: 0;
+      box-shadow: 0 0 10px #ffffff;
+    }
+
+    @keyframes twinkling {
+      0% { opacity: 0; transform: scale(0.1) rotate(0deg); }
+      5% { opacity: 0; }
+      20% { opacity: 1; transform: scale(1) rotate(45deg); }
+      30% { opacity: 1; transform: scale(1.1) rotate(90deg); }
+      40% { opacity: 0; transform: scale(0.1) rotate(180deg); }
+      100% { opacity: 0; }
+    }
+
+    /* --- NEW: WRAPPER THAT FOLLOWS THE FINGER --- */
+    #moving-wrapper {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 10;
+      pointer-events: none; /* Lets touches pass through to the screen */
+    }
+
+    /* --- MAIN HEART TEXT --- */
+    #heart-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .word {
+      position: absolute;
+      color: #ff3344;
+      font-weight: bold;
+      text-shadow: 0 0 5px rgba(255, 51, 68, 0.6);
+      opacity: 0;
+      white-space: nowrap;
+      transform: translate(-50%, -50%);
+      transition: left 2s ease-out, top 2s ease-out, opacity 1s ease-in;
+    }
+
+    #center-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: #ffffff;
+      font-size: 36px;
+      font-weight: bold;
+      text-shadow: 0 0 10px #ff0033, 0 0 20px #ff0033, 0 0 30px #ff0033;
+      opacity: 0;
+      z-index: 100;
+      transition: opacity 2s ease-in;
+    }
+
+    @keyframes heartbeat {
+      0%, 100% { transform: scale(1); filter: brightness(1); }
+      15% { transform: scale(1.03); filter: brightness(1.2); }
+      30% { transform: scale(1); filter: brightness(1); }
+      45% { transform: scale(1.03); filter: brightness(1.2); }
+    }
+
+    .pulse {
+      animation: heartbeat 1.5s infinite;
+      transform-origin: center;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="intro-screen">
+    <button id="open-btn">Open Me ❤️</button>
+  </div>
+
+  <div id="background-effects"></div>
+  
+  <div id="moving-wrapper">
+    <div id="heart-container"></div>
+    <div id="center-text"></div>
+  </div>
+
+  <script>
+    // --- 1. START BACKGROUND GLITTER IMMEDIATELY ---
+    const bg = document.getElementById('background-effects');
+    const particleCount = 100; 
+
+    for(let i = 0; i < particleCount; i++) {
+      let p = document.createElement('div');
+      p.className = 'glitter';
+      p.style.left = Math.random() * 100 + 'vw';
+      
+      let size = Math.random() * 6 + 2;
+      p.style.width = size + 'px';
+      p.style.height = size + 'px';
+      p.style.animationDuration = (Math.random() * 5 + 6) + 's';
+      p.style.animationDelay = (Math.random() * 5) + 's';
+      
+      let red = 255;
+      let green = Math.random() * 100 + 150; 
+      let blue = Math.random() * 100 + 150;  
+      p.style.background = `radial-gradient(circle, rgb(${red}, ${green}, ${blue}) 0%, transparent 70%)`;
+      
+      bg.appendChild(p);
+    }
+
+    function createTwinkle() {
+      let p = document.createElement('div');
+      p.className = 'twinkle';
+      p.style.left = Math.random() * 100 + 'vw';
+      p.style.top = Math.random() * 100 + 'vh';
+      
+      let size = Math.random() * 10 + 5;
+      p.style.width = size + 'px';
+      p.style.height = size + 'px';
+      p.style.animation = `twinkling ${Math.random() * 2 + 1}s ease-in-out forwards`;
+      
+      bg.appendChild(p);
+      
+      setTimeout(() => { bg.removeChild(p); }, 3000); 
+    }
+    setInterval(createTwinkle, 1000);
+
+    // --- 2. TOUCH AND MOUSE TRACKING LOGIC ---
+    let width = document.documentElement.clientWidth;
+    let height = document.documentElement.clientHeight;
+    let centerX = width / 2;
+    let centerY = height / 2;
+    
+    // Set starting positions to the exact center of the screen
+    let targetX = centerX;
+    let targetY = centerY;
+    let currentX = centerX;
+    let currentY = centerY;
+
+    const movingWrapper = document.getElementById('moving-wrapper');
+
+    // Update coordinates when mouse moves
+    document.addEventListener('mousemove', (e) => {
+      targetX = e.clientX;
+      targetY = e.clientY;
+    });
+
+    // Update coordinates when screen is touched or dragged
+    document.addEventListener('touchstart', (e) => {
+      targetX = e.touches[0].clientX;
+      targetY = e.touches[0].clientY;
+    });
+
+    document.addEventListener('touchmove', (e) => {
+      targetX = e.touches[0].clientX;
+      targetY = e.touches[0].clientY;
+    });
+
+    // Animation loop for smooth gliding
+    function animateFollow() {
+      // 0.05 controls the speed of the glide. Lower = slower/smoother.
+      currentX += (targetX - currentX) * 0.05; 
+      currentY += (targetY - currentY) * 0.05;
+      
+      // Calculate how far off center we are
+      let offsetX = currentX - centerX;
+      let offsetY = currentY - centerY;
+
+      // Move the wrapper
+      movingWrapper.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+      
+      requestAnimationFrame(animateFollow);
+    }
+    animateFollow(); // Start the loop immediately
+
+    // --- 3. BUTTON LOGIC ---
+    document.getElementById('open-btn').addEventListener('click', function() {
+      const introScreen = document.getElementById('intro-screen');
+      introScreen.style.opacity = '0';
+      
+      setTimeout(() => {
+        introScreen.style.display = 'none';
+        startHeartAnimation();
+      }, 1000);
+    });
+
+    // --- 4. MAIN HEART LOGIC ---
+    function startHeartAnimation() {
+      const container = document.getElementById('heart-container');
+      const centerText = document.getElementById('center-text');
+      const totalWords = 800; 
+      
+      const baseSize = Math.min(width, height);
+      const scale = baseSize / 2.8; 
+
+      function getPerfectHeartPoint() {
+        while(true) {
+          let x = (Math.random() - 0.5) * 3;
+          let y = (Math.random() - 0.5) * 3;
+          if (Math.pow(x*x + y*y - 1, 3) - x*x * Math.pow(y, 3) <= 0) {
+            return {x: x, y: y};
+          }
+        }
+      }
+
+      for (let i = 0; i < totalWords; i++) {
+        let word = document.createElement('div');
+        word.className = 'word';
+        word.innerText = 'i love you'; 
+
+        let angle = Math.random() * Math.PI * 2;
+        let startX = centerX + Math.cos(angle) * (baseSize * 1.5);
+        let startY = centerY + Math.sin(angle) * (baseSize * 1.5);
+
+        word.style.left = startX + 'px';
+        word.style.top = startY + 'px';
+        word.style.fontSize = (Math.random() * 5 + 8) + 'px';
+        
+        container.appendChild(word);
+
+        let point = getPerfectHeartPoint();
+        let finalX = centerX + (point.x * scale);
+        let finalY = centerY - (point.y * scale) + (scale * 0.2);
+
+        setTimeout(() => {
+          word.style.opacity = Math.random() * 0.5 + 0.5;
+          word.style.left = finalX + 'px';
+          word.style.top = finalY + 'px';
+        }, i * 5 + 300); 
+      }
+
+      setTimeout(() => {
+        centerText.style.opacity = '1';
+        container.classList.add('pulse');
+      }, totalWords * 5 + 2000);
+    }
+  </script>
+</body>
+</html>

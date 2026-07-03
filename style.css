@@ -1,0 +1,297 @@
+/* =========================================
+   PAGE GLOBAL BASE SETUP (Pinkish Palette)
+   ========================================= */
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #FFF0F2; /* Soft pastel pink background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow: hidden;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    -webkit-tap-highlight-color: transparent; /* Clean tap behavior on phones */
+}
+
+#wrapper {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* =========================================
+   QUESTION CARD CONTAINER
+   ========================================= */
+#question-screen {
+    width: 90%;
+    max-width: 450px;
+    text-align: center;
+    z-index: 100;
+}
+
+.question-card {
+    background: white;
+    padding: 35px 25px;
+    border-radius: 24px;
+    box-shadow: 0 10px 25px rgba(223, 122, 141, 0.15);
+    border: 1px solid #FFD1DC;
+}
+
+#question-text {
+    color: #8C1D24;
+    font-size: 1.5rem;
+    margin-bottom: 30px;
+    font-weight: 700;
+    line-height: 1.4;
+}
+
+/* =========================================
+   BUTTON SYSTEMS & PHONE RESPONSIVENESS
+   ========================================= */
+.button-container {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    position: relative;
+    min-height: 60px;
+    align-items: center;
+}
+
+#question-screen button {
+    padding: 14px 35px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    touch-action: manipulation; /* Eradicates mobile input delay loops */
+}
+
+#yes-btn {
+    background-color: #C3647B;
+    color: white;
+    border: 2px solid #C3647B;
+}
+
+#yes-btn:hover, #yes-btn:active {
+    background-color: #A3485E;
+    transform: scale(1.05);
+}
+
+#no-btn {
+    background-color: white;
+    color: #8EAA9A;
+    border: 2px solid #8EAA9A;
+    z-index: 110;
+}
+
+/* =========================================
+   THE GIFT BOX 
+   ========================================= */
+#gift-box {
+    position: absolute;
+    z-index: 10;
+    cursor: pointer;
+    transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.box {
+    width: 220px;
+    height: 180px;
+    background: #CF8998;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+    position: relative;
+}
+
+.box::after {
+    content: '';
+    position: absolute;
+    width: 40px;
+    height: 100%;
+    background: #EFD7DF;
+    left: 90px;
+}
+
+.tap-text {
+    color: white;
+    z-index: 2;
+    font-weight: 800;
+    font-size: 14px;
+    letter-spacing: 3px;
+    background: rgba(0,0,0,0.1);
+    padding: 8px 15px;
+    border-radius: 20px;
+}
+
+.lid {
+    width: 240px;
+    height: 45px;
+    background: #C3647B;
+    border-radius: 6px;
+    position: absolute;
+    top: -22px;
+    left: -10px;
+    box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+    z-index: 3;
+}
+
+.lid::after {
+    content: '';
+    position: absolute;
+    width: 40px;
+    height: 100%;
+    background: #EFD7DF;
+    left: 100px;
+}
+
+.bow-left, .bow-right {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    border: 8px solid #EFD7DF;
+    border-radius: 50% 50% 0 50%;
+    top: -25px;
+}
+.bow-left { left: 90px; transform: rotate(15deg); }
+.bow-right { left: 110px; border-radius: 50% 50% 50% 0; transform: rotate(-15deg); }
+
+#gift-box:hover .lid { transform: translateY(-8px) rotate(2deg); }
+
+/* =========================================
+   BOUQUET LAYERING & PROFILE OVERLAY
+   ========================================= */
+#bouquet-reveal {
+    opacity: 0;
+    transform: scale(0.2) translateY(300px); 
+    transition: all 1.2s cubic-bezier(0.34, 1.56, 0.64, 1); 
+    pointer-events: none;
+    position: absolute;
+    width: 100%;
+    max-width: 650px;
+    display: flex;
+    justify-content: center;
+    background-image: url('image_5eb004.jpg'); 
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: 24px;
+    overflow: hidden;
+}
+
+/* Semi-transparent rose layer blending the user photo cleanly into the page layout */
+#bouquet-reveal::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(255, 240, 242, 0.75); 
+    z-index: 0;
+}
+
+.bouquet-svg {
+    width: 100%;
+    height: auto;
+    z-index: 1;
+    animation: float 4s ease-in-out infinite;
+}
+
+.tag {
+    transform-origin: 12px 12px;
+    animation: sway 3s ease-in-out infinite alternate;
+}
+
+/* =========================================
+   OPEN ME NOTE POSITIONING next to bouquet
+   ========================================= */
+#mini-note {
+    display: none; 
+    position: absolute;
+    top: 35%;    
+    left: 72%;   
+    z-index: 40;
+    cursor: pointer;
+    animation: bounce 2s infinite ease-in-out;
+}
+
+.note-paper {
+    background: #FFF9C4; 
+    color: #555;
+    padding: 14px 18px;
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: bold;
+    border-radius: 4px;
+    box-shadow: 2px 10px 20px rgba(0,0,0,0.15);
+    transform: rotate(6deg);
+    border: 1px solid #F1E5AC;
+    font-size: 1.1rem;
+}
+
+/* =========================================
+   FINAL LOVE NOTE CARDPOP
+   ========================================= */
+#love-message {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255, 255, 255, 0.95);
+    padding: 25px;
+    border-radius: 20px;
+    text-align: center;
+    color: #8C1D24;
+    font-size: 1.15rem;
+    font-weight: 600;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+    width: 80%;
+    max-width: 360px;
+    z-index: 50;
+    border: 2px solid #FFD1DC;
+    animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* =========================================
+   ANIMATION INTERACTIVE TRANSFORM STATES
+   ========================================= */
+.is-open #gift-box {
+    opacity: 0;
+    transform: translateY(150px) scale(0.8) rotate(-10deg);
+    pointer-events: none;
+}
+
+.is-open #bouquet-reveal {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    pointer-events: auto;
+}
+
+/* =========================================
+   KEYFRAME DEFINITIONS
+   ========================================= */
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-12px); }
+}
+
+@keyframes sway {
+    0% { transform: translate(425px, 450px) rotate(40deg); }
+    100% { transform: translate(425px, 450px) rotate(50deg); }
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0) rotate(6deg); }
+    50% { transform: translateY(-12px) rotate(6deg); }
+}
+
+@keyframes popIn {
+    from { opacity: 0; transform: translate(-50%, -30%) scale(0.6); }
+    to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
